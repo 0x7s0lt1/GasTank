@@ -15,7 +15,7 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
 
     event Deposit(address cell, uint256 amount);
     event Withdraw(address cell, uint256 amount);
-    event PipedConfigured(address addr, bool status);
+    event Piped(address addr, bool status);
     event Burn(address from, uint256 amount, address executor);
 
     modifier onlyOwnerOrPipe() {
@@ -57,7 +57,7 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
 
     function setPipe(address addr, bool status) external onlyOwner nonReentrant whenNotPaused {
         pipes[addr] = status;
-        emit PipedConfigured(addr, status);
+        emit Piped(addr, status);
     }
 
     function burn(address from, uint256 amount, address executor) external onlyOwnerOrPipe whenNotPaused nonReentrant {
