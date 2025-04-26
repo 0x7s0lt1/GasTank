@@ -1,4 +1,4 @@
-## ⛽Gastank
+## ⛽GasTank
 
 #### GasTank is a secure on-chain ETH vault that allows users to deposit and manage balances individually.
 #### The contract owner can authorize trusted pipes to interact with the system. Pipes and the owner can burn (deduct) ETH from user balances when a service has been completed, collecting the cost into the owner's wallet.
