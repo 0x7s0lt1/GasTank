@@ -94,11 +94,11 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         emit Burn(from, amount, msg.sender);
     }
 
-    function getFacility() external onlyOwner view returns (address) {
+    function getFacility() external view onlyOwner returns (address) {
         return facility;
     }
 
-    function getAddressGas(address addr) external onlyOwnerOrFacility view returns (uint256) {
+    function getAddressGas(address addr) external view onlyOwnerOrFacility returns (uint256) {
         return tank[addr];
     }
 
