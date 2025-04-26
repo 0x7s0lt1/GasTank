@@ -1,17 +1,9 @@
-## Foundry
+## ⛽Gastank
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+#### GasTank is a secure on-chain ETH vault that allows users to deposit and manage balances individually.
+#### The contract owner can authorize trusted pipes to interact with the system. Pipes and the owner can burn (deduct) ETH from user balances when a service has been completed, collecting the cost into the owner's wallet.
+#### This setup allows users to prepay for services, while giving the owner (or trusted executors) the ability to charge users efficiently and safely.
 
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
 
 ## Usage
 
@@ -25,42 +17,4 @@ $ forge build
 
 ```shell
 $ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
 ```
