@@ -6,7 +6,6 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract GasTank is Ownable, Pausable, ReentrancyGuard {
-
     error ZeroAmount();
     error NotAuthorized();
     error TransferFailed();
@@ -38,8 +37,9 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
 
     function deposit() external payable nonReentrant whenNotPaused {
         if (msg.value == 0) revert ZeroAmount();
-        unchecked { tank[msg.sender] += msg.value; }
-        emit Deposit(msg.sender, msg.value);
+        unchecked {
+            tank[msg.sender] += msg.value;
+        }
 
         emit Deposit(msg.sender, msg.value);
     }
@@ -73,7 +73,9 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
 
     function _executeBurn(address from, uint256 amount) private {
         if (tank[from] < amount) revert NotAuthorized();
-        unchecked { tank[from] -= amount; }
+        unchecked {
+            tank[from] -= amount;
+        }
 
         (bool sent,) = owner().call{value: amount}("");
         if (!sent) revert TransferFailed();

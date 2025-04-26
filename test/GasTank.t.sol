@@ -16,7 +16,6 @@ contract SignalBotFactoryTest is Test {
     }
 
     function test_depositGas() public {
-
         uint256 initialBalance = 1100 ether;
         uint256 fillValue = 10 ether;
 
