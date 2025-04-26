@@ -31,7 +31,7 @@ contract MyFactory {
 
         // do something
 
-        uint256 cost = (  startGas - gasLeft() ) * tx.gasprice;
+        uint256 cost = ( startGas - gasLeft() ) * tx.gasprice;
         
         // Burn the cost for the service
         gasTank.burn(msg.sender, cost);
