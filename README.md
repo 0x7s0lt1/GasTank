@@ -7,6 +7,32 @@
 
 ## Usage
 
+```solidity
+    import {GasTank} from "./GasTank.sol";
+
+    contract MyContract {
+        
+        GastTank private immutable gasTank;
+
+        constructor(address owner) {
+            gasTank = new Gastank(owner);
+            gasTank.setPipe(address(this), true);
+        }
+
+        function doSomething() external {
+            uint256 startGas = gasLeft();
+
+            // do something
+
+            uint256 cost = (  startGas - gasLeft() ) * tx.gasprice;
+            
+            gasTank.burn(msg.sender, cost);
+            
+        }
+    }
+
+```
+
 ### Build
 
 ```shell

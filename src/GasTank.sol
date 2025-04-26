@@ -8,6 +8,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 contract GasTank is Ownable, Pausable, ReentrancyGuard {
     error ZeroAmount();
     error NotAuthorized();
+    error InsufficientBalance();
     error TransferFailed();
 
     mapping(address => uint256) private tank;
@@ -60,15 +61,15 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         emit Piped(addr, status);
     }
 
-    function burn(address from, uint256 amount, address executor) external onlyOwnerOrPipe whenNotPaused nonReentrant {
-        _validateBurn(from, amount, executor);
+    function burn(address from, uint256 amount) external onlyOwnerOrPipe whenNotPaused nonReentrant {
+        _validateBurn(from, amount);
         _executeBurn(from, amount);
     }
 
-    function _validateBurn(address from, uint256 amount, address executor) private pure {
+    function _validateBurn(address from, uint256 amount) private view {
         if (from == address(0)) revert NotAuthorized();
-        if (executor == address(0)) revert NotAuthorized();
         if (amount == 0) revert ZeroAmount();
+        if (tank[from] < amount) revert InsufficientBalance();
     }
 
     function _executeBurn(address from, uint256 amount) private {

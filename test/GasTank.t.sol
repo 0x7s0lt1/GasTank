@@ -79,7 +79,7 @@ contract SignalBotFactoryTest is Test {
 
         uint256 msgSenderBalanceBefore = msg.sender.balance;
 
-        gasTank.burn(sender, pipeValue, address(1));
+        gasTank.burn(sender, pipeValue);
         assertEq(gasTank.getAddressGas(sender), difference);
         assertEq(msg.sender.balance, (msgSenderBalanceBefore + pipeValue));
 
