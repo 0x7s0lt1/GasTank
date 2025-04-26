@@ -10,7 +10,7 @@ contract SignalBotFactoryTest is Test {
     function setUp() public {
         vm.startPrank(msg.sender);
 
-        gasTank = new GasTank(msg.sender);
+        gasTank = new GasTank(msg.sender, address(1));
 
         vm.stopPrank();
     }
@@ -80,8 +80,11 @@ contract SignalBotFactoryTest is Test {
         uint256 msgSenderBalanceBefore = msg.sender.balance;
 
         gasTank.burn(sender, pipeValue);
-        assertEq(gasTank.getAddressGas(sender), difference);
         assertEq(msg.sender.balance, (msgSenderBalanceBefore + pipeValue));
+
+        vm.stopPrank();
+        vm.startPrank(sender);
+        assertEq(gasTank.getGas(), difference);
 
         vm.stopPrank();
     }

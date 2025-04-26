@@ -8,29 +8,36 @@
 ## Usage
 
 ```solidity
-    import {GasTank} from "./GasTank.sol";
+import {GasTank} from "./GasTank.sol";
 
-    contract MyContract {
+contract MyFactory {
+    
+    GastTank private immutable gasTank;
+
+    constructor() {
         
-        GastTank private immutable gasTank;
-
-        constructor(address owner) {
-            gasTank = new Gastank(owner);
-            gasTank.setPipe(address(this), true);
-        }
-
-        function doSomething() external {
-            uint256 startGas = gasLeft();
-
-            // do something
-
-            uint256 cost = (  startGas - gasLeft() ) * tx.gasprice;
-            
-            gasTank.burn(msg.sender, cost);
-            
-        }
+        address owner = msg.sender;
+        address facility = address(this);
+        
+        //Initialize GasTank
+        gasTank = new GasTank(owner, facility);
+        
+        // Allow the factory to transfer ETH from the tank
+        gasTank.setPipe(facility, true);
     }
 
+    function doSomething() public {
+        uint256 startGas = gasLeft();
+
+        // do something
+
+        uint256 cost = (  startGas - gasLeft() ) * tx.gasprice;
+        
+        // Burn the cost for the service
+        gasTank.burn(msg.sender, cost);
+        
+    }
+}
 ```
 
 ### Build

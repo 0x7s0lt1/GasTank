@@ -11,6 +11,7 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
     error InsufficientBalance();
     error TransferFailed();
 
+    address private immutable facility;
     mapping(address => uint256) private tank;
     mapping(address => bool) private pipes;
 
@@ -19,6 +20,13 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
     event Piped(address addr, bool status);
     event Burn(address from, uint256 amount, address executor);
 
+    modifier onlyOwnerOrFacility() {
+        if (msg.sender != owner() && msg.sender != facility) {
+            revert NotAuthorized();
+        }
+        _;
+    }
+
     modifier onlyOwnerOrPipe() {
         if (!pipes[msg.sender] && msg.sender != owner()) {
             revert NotAuthorized();
@@ -26,7 +34,9 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         _;
     }
 
-    constructor(address owner) Ownable(owner) {}
+    constructor(address _owner, address _facility) Ownable(_owner) {
+        facility = _facility;
+    }
 
     receive() external payable {
         revert("Use deposit() instead");
@@ -56,7 +66,7 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         emit Withdraw(msg.sender, amount);
     }
 
-    function setPipe(address addr, bool status) external onlyOwner nonReentrant whenNotPaused {
+    function setPipe(address addr, bool status) external onlyOwnerOrFacility nonReentrant whenNotPaused {
         pipes[addr] = status;
         emit Piped(addr, status);
     }
@@ -84,8 +94,8 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         emit Burn(from, amount, msg.sender);
     }
 
-    function getAddressGas(address addr) external view onlyOwnerOrPipe returns (uint256) {
-        return tank[addr];
+    function getFacility() external view returns (address) {
+        return facility;
     }
 
     function getGas() external view returns (uint256) {
