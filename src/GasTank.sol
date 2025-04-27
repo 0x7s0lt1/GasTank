@@ -57,9 +57,11 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
 
     function withdraw(uint256 amount) external nonReentrant whenNotPaused {
         if (amount == 0) revert ZeroAmount();
-        if (tank[msg.sender] < amount) revert NotAuthorized();
+        if (tank[msg.sender] < amount) revert InsufficientBalance();
 
-        tank[msg.sender] -= amount;
+        unchecked {
+            tank[msg.sender] -= amount;
+        }
         (bool sent,) = msg.sender.call{value: amount}("");
         if (!sent) revert TransferFailed();
 
@@ -83,7 +85,7 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
     }
 
     function _executeBurn(address from, uint256 amount) private {
-        if (tank[from] < amount) revert NotAuthorized();
+        if (tank[from] < amount) revert InsufficientBalance();
         unchecked {
             tank[from] -= amount;
         }
