@@ -10,6 +10,7 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
     error NotAuthorized();
     error InsufficientBalance();
     error TransferFailed();
+    error TransferNotAllowed();
 
     address private immutable facility;
     mapping(address => uint256) private tank;
@@ -39,11 +40,11 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
     }
 
     receive() external payable {
-        revert("Use deposit() instead");
+        revert TransferNotAllowed();
     }
 
     fallback() external payable {
-        revert("Use deposit() instead");
+        revert TransferNotAllowed();
     }
 
     function deposit() external payable nonReentrant whenNotPaused {
