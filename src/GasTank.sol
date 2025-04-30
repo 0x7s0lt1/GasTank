@@ -36,13 +36,13 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
     }
 
     modifier onlyOwnerOrPipe() {
-        if (!pipes.contains(msg.sender) && msg.sender != owner()) {
+        if (msg.sender != owner() && !pipes.contains(msg.sender)) {
             revert NotAuthorized();
         }
         _;
     }
 
-    constructor(address _owner) Ownable(_owner) {}
+    constructor(address owner) Ownable(owner) {}
 
     receive() external payable {
         revert TransferNotAllowed();
