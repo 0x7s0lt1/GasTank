@@ -84,7 +84,6 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard, Nonces {
         if (msg.value == 0) revert ZeroAmount();
 
         _useCheckedNonce(msg.sender, nonce);
-        _useCheckedNonce(msg.sender, nonces(msg.sender));
 
         unchecked {
             tank[msg.sender] += msg.value;
