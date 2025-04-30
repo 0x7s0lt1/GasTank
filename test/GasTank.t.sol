@@ -10,7 +10,7 @@ contract SignalBotFactoryTest is Test {
     function setUp() public {
         vm.startPrank(msg.sender);
 
-        gasTank = new GasTank(msg.sender, address(1));
+        gasTank = new GasTank(msg.sender);
 
         vm.stopPrank();
     }

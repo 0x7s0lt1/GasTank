@@ -4,40 +4,45 @@ pragma solidity >=0.4.22 <0.9.0;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 contract GasTank is Ownable, Pausable, ReentrancyGuard {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
     error ZeroAmount();
     error NotAuthorized();
     error InsufficientBalance();
     error TransferFailed();
     error TransferNotAllowed();
 
-    address private immutable facility;
-    mapping(address => uint256) private tank;
-    mapping(address => bool) private pipes;
-
-    event Deposit(address cell, uint256 amount);
-    event Withdraw(address cell, uint256 amount);
-    event Piped(address addr, bool status);
+    event Deposit(address user, uint256 amount);
+    event Withdraw(address user, uint256 amount);
     event Burn(address from, uint256 amount, address executor);
+    event FacilityAdded(address addr);
+    event FacilityRemoved(address addr);
+    event PipedAdded(address addr);
+    event PipedRemoved(address addr);
+
+    mapping(address => uint256) private tank;
+
+    EnumerableSet.AddressSet private facilities;
+    EnumerableSet.AddressSet private pipes;
 
     modifier onlyOwnerOrFacility() {
-        if (msg.sender != owner() && msg.sender != facility) {
+        if (msg.sender != owner() && !facilities.contains(msg.sender)) {
             revert NotAuthorized();
         }
         _;
     }
 
     modifier onlyOwnerOrPipe() {
-        if (!pipes[msg.sender] && msg.sender != owner()) {
+        if (!pipes.contains(msg.sender) && msg.sender != owner()) {
             revert NotAuthorized();
         }
         _;
     }
 
-    constructor(address _owner, address _facility) Ownable(_owner) {
-        facility = _facility;
-    }
+    constructor(address _owner) Ownable(_owner) {}
 
     receive() external payable {
         revert TransferNotAllowed();
@@ -69,24 +74,31 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         emit Withdraw(msg.sender, amount);
     }
 
-    function setPipe(address addr, bool status) external onlyOwnerOrFacility nonReentrant whenNotPaused {
-        pipes[addr] = status;
-        emit Piped(addr, status);
+    function addFacility(address addr) external onlyOwner nonReentrant whenNotPaused {
+        facilities.add(addr);
+        emit FacilityAdded(addr);
+    }
+
+    function removeFacility(address addr) external onlyOwner nonReentrant whenNotPaused {
+        facilities.remove(addr);
+        emit FacilityAdded(addr);
+    }
+
+    function addPipe(address addr) external onlyOwnerOrFacility nonReentrant whenNotPaused {
+        pipes.add(addr);
+        emit PipedAdded(addr);
+    }
+
+    function removePipe(address addr) external onlyOwnerOrFacility nonReentrant whenNotPaused {
+        pipes.remove(addr);
+        emit PipedRemoved(addr);
     }
 
     function burn(address from, uint256 amount) external onlyOwnerOrPipe whenNotPaused nonReentrant {
-        _validateBurn(from, amount);
-        _executeBurn(from, amount);
-    }
-
-    function _validateBurn(address from, uint256 amount) private view {
         if (from == address(0)) revert NotAuthorized();
         if (amount == 0) revert ZeroAmount();
         if (tank[from] < amount) revert InsufficientBalance();
-    }
 
-    function _executeBurn(address from, uint256 amount) private {
-        if (tank[from] < amount) revert InsufficientBalance();
         unchecked {
             tank[from] -= amount;
         }
@@ -97,8 +109,12 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         emit Burn(from, amount, msg.sender);
     }
 
-    function getFacility() external view onlyOwner returns (address) {
-        return facility;
+    function getFacility() external view onlyOwner returns (address[] memory) {
+        return facilities.values();
+    }
+
+    function getPipes() external view onlyOwnerOrFacility returns (address[] memory) {
+        return pipes.values();
     }
 
     function getAddressGas(address addr) external view onlyOwnerOrFacility returns (uint256) {
