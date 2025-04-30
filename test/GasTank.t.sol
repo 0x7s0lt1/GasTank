@@ -26,7 +26,8 @@ contract SignalBotFactoryTest is Test {
 
         assertEq(gasTank.getGas(), 0);
 
-        gasTank.deposit{value: fillValue}();
+        uint256 nonce = gasTank.getNonce();
+        gasTank.deposit{value: fillValue}(nonce);
 
         assertEq(gasTank.getGas(), fillValue);
         assertEq(sender.balance, (initialBalance - fillValue));
@@ -44,12 +45,14 @@ contract SignalBotFactoryTest is Test {
 
         assertEq(gasTank.getGas(), 0);
 
-        gasTank.deposit{value: fillValue}();
+        uint256 depositNonce = gasTank.getNonce();
+        gasTank.deposit{value: fillValue}(depositNonce);
 
         assertEq(gasTank.getGas(), fillValue);
         assertEq(sender.balance, (initialBalance - fillValue));
 
-        gasTank.withdraw(fillValue);
+        uint256 withdrawNonce = gasTank.getNonce();
+        gasTank.withdraw(fillValue, withdrawNonce);
 
         assertEq(gasTank.getGas(), 0);
         assertEq(sender.balance, initialBalance);
@@ -69,7 +72,8 @@ contract SignalBotFactoryTest is Test {
 
         assertEq(gasTank.getGas(), 0);
 
-        gasTank.deposit{value: fillValue}();
+        uint256 depositNonce = gasTank.getNonce();
+        gasTank.deposit{value: fillValue}(depositNonce);
 
         assertEq(gasTank.getGas(), fillValue);
         assertEq(sender.balance, (initialBalance - fillValue));
@@ -79,7 +83,8 @@ contract SignalBotFactoryTest is Test {
 
         uint256 msgSenderBalanceBefore = msg.sender.balance;
 
-        gasTank.burn(sender, pipeValue);
+        uint256 senderNonce = gasTank.getAddressNonce(sender);
+        gasTank.burn(sender, pipeValue, senderNonce);
         assertEq(msg.sender.balance, (msgSenderBalanceBefore + pipeValue));
 
         vm.stopPrank();
