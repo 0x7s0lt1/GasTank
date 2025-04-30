@@ -17,13 +17,17 @@ contract MyFactory {
     constructor() {
         
         address owner = msg.sender;
-        address facility = address(this);
+        address factory = address(this);
         
         //Initialize GasTank
-        gasTank = new GasTank(owner, facility);
+        gasTank = new GasTank(owner);
+        
+        // Allow the factory to set pipes
+        gasTank.addFacility(factory);
         
         // Allow the factory to transfer ETH from the tank
-        gasTank.setPipe(facility, true);
+        gasTank.addPipe(factory);
+        
     }
 
     function doSomething() public {
