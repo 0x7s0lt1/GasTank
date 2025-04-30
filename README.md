@@ -19,7 +19,7 @@ contract MyFactory {
         address owner = msg.sender;
         address factory = address(this);
         
-        //Initialize GasTank
+        // Initialize GasTank
         gasTank = new GasTank(owner);
         
         // Allow the factory to set pipes
