@@ -4,10 +4,9 @@ pragma solidity >=0.4.22 <0.9.0;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract GasTank is Ownable, Pausable, ReentrancyGuard, Nonces {
+contract GasTank is Ownable, Pausable, ReentrancyGuard {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     error ZeroAmount();
@@ -62,13 +61,6 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard, Nonces {
         _;
     }
 
-    modifier onlyOwnerPipeFacility() {
-        if (msg.sender != owner() && !facilities.contains(msg.sender) && !pipes.contains(msg.sender)) {
-            revert NotAuthorized();
-        }
-        _;
-    }
-
     constructor(address owner) Ownable(owner) {}
 
     receive() external payable {
@@ -79,10 +71,8 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard, Nonces {
         revert TransferNotAllowed();
     }
 
-    function deposit(uint256 nonce) external payable onlyEOA nonReentrant whenNotPaused {
+    function deposit() external payable onlyEOA nonReentrant whenNotPaused {
         if (msg.value == 0) revert ZeroAmount();
-
-        _useCheckedNonce(msg.sender, nonce);
 
         unchecked {
             tank[msg.sender] += msg.value;
@@ -91,11 +81,9 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard, Nonces {
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(uint256 amount, uint256 nonce) external onlyEOA nonReentrant whenNotPaused {
+    function withdraw(uint256 amount) external onlyEOA nonReentrant whenNotPaused {
         if (amount == 0) revert ZeroAmount();
         if (tank[msg.sender] < amount) revert InsufficientBalance();
-
-        _useCheckedNonce(msg.sender, nonce);
 
         unchecked {
             tank[msg.sender] -= amount;
@@ -126,12 +114,10 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard, Nonces {
         emit PipedRemoved(addr);
     }
 
-    function burn(address from, uint256 amount, uint256 nonce) external onlyOwnerOrPipe whenNotPaused nonReentrant {
+    function burn(address from, uint256 amount) external onlyOwnerOrPipe whenNotPaused nonReentrant {
         if (from == address(0)) revert ZeroAddressNotAllowed();
         if (amount == 0) revert ZeroAmount();
         if (tank[from] < amount) revert InsufficientBalance();
-
-        _useCheckedNonce(from, nonce);
 
         unchecked {
             tank[from] -= amount;
@@ -149,14 +135,6 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard, Nonces {
 
     function getPipes() external view onlyOwnerOrFacility returns (address[] memory) {
         return pipes.values();
-    }
-
-    function getAddressNonce(address addr) external view onlyOwnerPipeFacility noZeroAddress(addr) returns (uint256) {
-        return nonces(addr);
-    }
-
-    function getNonce() external view returns (uint256) {
-        return nonces(msg.sender);
     }
 
     function getAddressGas(address addr) external view onlyOwnerOrFacility noZeroAddress(addr) returns (uint256) {
