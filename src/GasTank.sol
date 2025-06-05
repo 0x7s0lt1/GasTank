@@ -19,6 +19,7 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
 
     event Deposit(address user, uint256 amount);
     event Withdraw(address user, uint256 amount);
+    event Transfer(address from, address to, uint256 amount);
     event Burn(address from, uint256 amount, address executor);
     event FacilityAdded(address addr);
     event FacilityRemoved(address addr);
@@ -112,6 +113,18 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
     function removePipe(address addr) external onlyOwnerOrFacility nonReentrant whenNotPaused {
         pipes.remove(addr);
         emit PipedRemoved(addr);
+    }
+
+    function transfer(address from, address to, uint256 amount) external onlyOwnerOrFacility nonReentrant whenNotPaused {
+        if (amount == 0) revert ZeroAmount();
+        if (tank[from] < amount) revert InsufficientBalance();
+
+        unchecked {
+            tank[from] -= amount;
+            tank[to] += amount;
+        }
+
+        emit Transfer(from, to, amount);
     }
 
     function burn(address from, uint256 amount) external onlyOwnerOrPipe whenNotPaused nonReentrant {

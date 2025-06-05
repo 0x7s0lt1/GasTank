@@ -57,6 +57,43 @@ contract SignalBotFactoryTest is Test {
         vm.stopPrank();
     }
 
+    function test_transferGas() public {
+        uint256 initialBalance = 1100 ether;
+        uint256 fillValue = 1000 wei;
+        uint256 transferValue = 250 wei;
+        uint256 difference = fillValue - transferValue;
+        address fromAddress = address(0x123);
+        address receiverAddress = address(0x456);
+
+        vm.startPrank(fromAddress);
+        vm.deal(fromAddress, initialBalance);
+
+        assertEq(gasTank.getGas(), 0);
+
+        gasTank.deposit{value: fillValue}();
+
+        assertEq(gasTank.getGas(), fillValue);
+        assertEq(fromAddress.balance, (initialBalance - fillValue));
+        assertEq(receiverAddress.balance, 0);
+
+        vm.stopPrank();
+        vm.startPrank(msg.sender);
+
+        gasTank.transfer(fromAddress, receiverAddress, transferValue);
+
+        vm.stopPrank();
+        vm.startPrank(fromAddress);
+
+        assertEq(gasTank.getGas(), difference);
+
+        vm.stopPrank();
+        vm.startPrank(receiverAddress);
+
+        assertEq(gasTank.getGas(), transferValue);
+
+        vm.stopPrank();
+    }
+
     function test_burnGas() public {
         uint256 initialBalance = 1100 ether;
         uint256 fillValue = 1000 wei;
