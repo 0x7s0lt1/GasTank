@@ -115,7 +115,12 @@ contract GasTank is Ownable, Pausable, ReentrancyGuard {
         emit PipedRemoved(addr);
     }
 
-    function transfer(address from, address to, uint256 amount) external onlyOwnerOrFacility nonReentrant whenNotPaused {
+    function transfer(address from, address to, uint256 amount)
+        external
+        onlyOwnerOrFacility
+        nonReentrant
+        whenNotPaused
+    {
         if (amount == 0) revert ZeroAmount();
         if (tank[from] < amount) revert InsufficientBalance();
 
