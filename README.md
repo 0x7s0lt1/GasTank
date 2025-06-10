@@ -13,14 +13,6 @@ A simple smart contract for managing user-funded gas balances.
 
 Useful for bots or services that execute transactions on behalf of users using pre-funded gas.
 
-## Tech
-
-- Solidity `^0.8.0`
-- OpenZeppelin (Ownable, Pausable, ReentrancyGuard)
-
-## License
-
-MIT
 
 
 
