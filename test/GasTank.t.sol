@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "../src/GasTank.sol";
 import {Test, console} from "forge-std/Test.sol";
 
-contract SignalBotFactoryTest is Test {
+contract GasTankTest is Test {
     GasTank public gasTank;
 
     function setUp() public {
